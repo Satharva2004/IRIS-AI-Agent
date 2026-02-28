@@ -980,6 +980,12 @@ def handle_intent(prompt, text_placeholder):
 
     # ── OPEN FILE ────────────────────────────────────────────────────────────
     elif intent == "open":
+        import sys
+        if sys.platform != "win32":
+            resp = "⚠️ **Local File Access Disabled:** I am currently running in a cloud environment (Streamlit Cloud). I do not have access to the local files, folders, or applications on your computer."
+            text_placeholder.markdown(resp)
+            return resp, None, None
+
         q = extract_query(prompt, ["open", "launch", "start", "run", "file", "this", "the"])
         if not q: q = prompt
         filepath = q.strip()
