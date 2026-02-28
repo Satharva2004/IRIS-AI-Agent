@@ -12,23 +12,41 @@ USER_DB   = "users.json"
 MEMORY_DB = "memory.json"
 
 def load_users():
-    return json.load(open(USER_DB)) if os.path.exists(USER_DB) else {}
+    if os.path.exists(USER_DB):
+        try:
+            with open(USER_DB, "r") as f:
+                return json.load(f)
+        except json.JSONDecodeError:
+            pass # Return empty if corrupted or empty
+    return {}
 
 def save_users(u):
-    json.dump(u, open(USER_DB, "w"))
+    with open(USER_DB, "w") as f:
+        json.dump(u, f)
 
 def hash_pw(p):
     return hashlib.sha256(p.encode()).hexdigest()
 
 def load_memory(email):
     if os.path.exists(MEMORY_DB):
-        return json.load(open(MEMORY_DB)).get(email, [])
+        try:
+            with open(MEMORY_DB, "r") as f:
+                return json.load(f).get(email, [])
+        except json.JSONDecodeError:
+            pass # Return empty list if corrupted or empty
     return []
 
 def save_memory(email, msgs):
-    data = json.load(open(MEMORY_DB)) if os.path.exists(MEMORY_DB) else {}
+    data = {}
+    if os.path.exists(MEMORY_DB):
+        try:
+            with open(MEMORY_DB, "r") as f:
+                data = json.load(f)
+        except json.JSONDecodeError:
+            pass
     data[email] = msgs[-80:]
-    json.dump(data, open(MEMORY_DB, "w"))
+    with open(MEMORY_DB, "w") as f:
+        json.dump(data, f)
 
 # ─── PAGE CONFIG ──────────────────────────────────────────────────────────────
 st.set_page_config(page_title="IRIS AI", page_icon="◈", layout="wide",
